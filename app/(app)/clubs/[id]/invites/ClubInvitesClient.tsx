@@ -182,6 +182,10 @@ export default function ClubInvitesClient({ clubId, clubName }: { clubId: string
                     </span>
                     <CopyButton text={link} title="Copy link" />
                   </div>
+                  {/* Message preview */}
+                  <div className="mt-1 rounded-lg bg-stone-50 dark:bg-stone-800 px-3 py-2 text-xs text-stone-600 dark:text-stone-300 whitespace-pre-wrap leading-relaxed border border-stone-100 dark:border-stone-700">
+                    {buildMessage(link, clubName)}
+                  </div>
                   <div className="flex items-center gap-2 pt-1 border-t border-stone-100 dark:border-stone-800">
                     <span className="text-xs text-stone-400 dark:text-stone-500">Share:</span>
                     <ShareButtons link={link} clubName={clubName} />
