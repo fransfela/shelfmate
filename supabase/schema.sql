@@ -1,17 +1,34 @@
--- ─────────────────────────────────────────────────────────────────────────────
--- Shelfmate — Book Sharing Library
+-- =============================================================================
+-- Shelfmate - Book Sharing Library
 -- Supabase / PostgreSQL Schema
--- Run this in your Supabase SQL Editor
--- ─────────────────────────────────────────────────────────────────────────────
+-- Run this in your Supabase SQL Editor (safe to run on a fresh project)
+-- =============================================================================
 
 -- Enable UUID generation
 create extension if not exists "pgcrypto";
 
+-- =============================================================================
+-- ENUM TYPES
+-- =============================================================================
 
--- ─── Profiles ─────────────────────────────────────────────────────────────────
--- Mirrors auth.users with public-facing profile fields
+do $$ begin
+  create type reading_status as enum ('want_to_read', 'reading', 'finished', 'abandoned');
+exception when duplicate_object then null; end $$;
 
-create table public.profiles (
+do $$ begin
+  create type visibility as enum ('public', 'friends', 'private');
+exception when duplicate_object then null; end $$;
+
+do $$ begin
+  create type friendship_status as enum ('pending', 'accepted');
+exception when duplicate_object then null; end $$;
+
+
+-- =============================================================================
+-- PROFILES
+-- =============================================================================
+
+create table if not exists public.profiles (
   id              uuid primary key references auth.users(id) on delete cascade,
   username        text unique not null,
   full_name       text,
@@ -23,12 +40,12 @@ create table public.profiles (
 
 alter table public.profiles enable row level security;
 
--- Anyone can see public profiles
+drop policy if exists "Public profiles are viewable" on public.profiles;
 create policy "Public profiles are viewable"
   on public.profiles for select
   using (profile_public = true or auth.uid() = id);
 
--- Users can update their own profile
+drop policy if exists "Users update own profile" on public.profiles;
 create policy "Users update own profile"
   on public.profiles for update
   using (auth.uid() = id);
@@ -48,15 +65,17 @@ begin
 end;
 $$;
 
+drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
 
 
--- ─── Books ────────────────────────────────────────────────────────────────────
--- Canonical book records (sourced from Google Books API)
+-- =============================================================================
+-- BOOKS
+-- =============================================================================
 
-create table public.books (
+create table if not exists public.books (
   id               uuid primary key default gen_random_uuid(),
   google_books_id  text unique not null,
   title            text not null,
@@ -71,16 +90,19 @@ create table public.books (
 );
 
 alter table public.books enable row level security;
+
+drop policy if exists "Books are publicly readable" on public.books;
 create policy "Books are publicly readable" on public.books for select using (true);
+
+drop policy if exists "Authenticated users can insert books" on public.books;
 create policy "Authenticated users can insert books" on public.books for insert with check (auth.role() = 'authenticated');
 
 
--- ─── User Books (Shelf) ───────────────────────────────────────────────────────
+-- =============================================================================
+-- USER BOOKS (SHELF)
+-- =============================================================================
 
-create type reading_status as enum ('want_to_read', 'reading', 'finished', 'abandoned');
-create type visibility as enum ('public', 'friends', 'private');
-
-create table public.user_books (
+create table if not exists public.user_books (
   id           uuid primary key default gen_random_uuid(),
   user_id      uuid not null references public.profiles(id) on delete cascade,
   book_id      uuid not null references public.books(id) on delete cascade,
@@ -97,10 +119,12 @@ create table public.user_books (
 
 alter table public.user_books enable row level security;
 
+drop policy if exists "Users see own books always" on public.user_books;
 create policy "Users see own books always"
   on public.user_books for select
   using (auth.uid() = user_id);
 
+drop policy if exists "Friends see friend books" on public.user_books;
 create policy "Friends see friend books"
   on public.user_books for select
   using (
@@ -113,8 +137,13 @@ create policy "Friends see friend books"
     ))
   );
 
+drop policy if exists "Users insert own books" on public.user_books;
 create policy "Users insert own books" on public.user_books for insert with check (auth.uid() = user_id);
+
+drop policy if exists "Users update own books" on public.user_books;
 create policy "Users update own books" on public.user_books for update using (auth.uid() = user_id);
+
+drop policy if exists "Users delete own books" on public.user_books;
 create policy "Users delete own books" on public.user_books for delete using (auth.uid() = user_id);
 
 -- Auto-update updated_at
@@ -122,13 +151,17 @@ create or replace function public.set_updated_at()
 returns trigger language plpgsql as $$
 begin new.updated_at = now(); return new; end;
 $$;
+
+drop trigger if exists user_books_updated_at on public.user_books;
 create trigger user_books_updated_at before update on public.user_books
   for each row execute procedure public.set_updated_at();
 
 
--- ─── Notes / Quotes ───────────────────────────────────────────────────────────
+-- =============================================================================
+-- NOTES / QUOTES
+-- =============================================================================
 
-create table public.notes (
+create table if not exists public.notes (
   id            uuid primary key default gen_random_uuid(),
   user_book_id  uuid not null references public.user_books(id) on delete cascade,
   content       text not null,
@@ -139,23 +172,33 @@ create table public.notes (
 );
 
 alter table public.notes enable row level security;
+
+drop policy if exists "Notes visible to owner or public" on public.notes;
 create policy "Notes visible to owner or public"
   on public.notes for select
   using (
     visibility = 'public'
     or exists (select 1 from public.user_books ub where ub.id = user_book_id and ub.user_id = auth.uid())
   );
+
+drop policy if exists "Notes insert by owner" on public.notes;
 create policy "Notes insert by owner" on public.notes for insert
   with check (exists (select 1 from public.user_books ub where ub.id = user_book_id and ub.user_id = auth.uid()));
+
+drop policy if exists "Notes update by owner" on public.notes;
 create policy "Notes update by owner" on public.notes for update
   using (exists (select 1 from public.user_books ub where ub.id = user_book_id and ub.user_id = auth.uid()));
+
+drop policy if exists "Notes delete by owner" on public.notes;
 create policy "Notes delete by owner" on public.notes for delete
   using (exists (select 1 from public.user_books ub where ub.id = user_book_id and ub.user_id = auth.uid()));
 
 
--- ─── Reading Lists ────────────────────────────────────────────────────────────
+-- =============================================================================
+-- READING LISTS
+-- =============================================================================
 
-create table public.reading_lists (
+create table if not exists public.reading_lists (
   id           uuid primary key default gen_random_uuid(),
   user_id      uuid not null references public.profiles(id) on delete cascade,
   name         text not null,
@@ -164,7 +207,7 @@ create table public.reading_lists (
   created_at   timestamptz not null default now()
 );
 
-create table public.list_books (
+create table if not exists public.list_books (
   list_id     uuid not null references public.reading_lists(id) on delete cascade,
   book_id     uuid not null references public.books(id) on delete cascade,
   sort_order  integer not null default 0,
@@ -175,25 +218,39 @@ create table public.list_books (
 alter table public.reading_lists enable row level security;
 alter table public.list_books enable row level security;
 
+drop policy if exists "Lists readable if public or owner" on public.reading_lists;
 create policy "Lists readable if public or owner"
   on public.reading_lists for select
   using (visibility = 'public' or auth.uid() = user_id);
+
+drop policy if exists "Lists insert by owner" on public.reading_lists;
 create policy "Lists insert by owner" on public.reading_lists for insert with check (auth.uid() = user_id);
+
+drop policy if exists "Lists update by owner" on public.reading_lists;
 create policy "Lists update by owner" on public.reading_lists for update using (auth.uid() = user_id);
+
+drop policy if exists "Lists delete by owner" on public.reading_lists;
 create policy "Lists delete by owner" on public.reading_lists for delete using (auth.uid() = user_id);
 
+drop policy if exists "List books readable" on public.list_books;
 create policy "List books readable" on public.list_books for select using (
   exists (select 1 from public.reading_lists rl where rl.id = list_id and (rl.visibility = 'public' or rl.user_id = auth.uid()))
 );
+
+drop policy if exists "List books insert by list owner" on public.list_books;
 create policy "List books insert by list owner" on public.list_books for insert
   with check (exists (select 1 from public.reading_lists rl where rl.id = list_id and rl.user_id = auth.uid()));
+
+drop policy if exists "List books delete by list owner" on public.list_books;
 create policy "List books delete by list owner" on public.list_books for delete
   using (exists (select 1 from public.reading_lists rl where rl.id = list_id and rl.user_id = auth.uid()));
 
 
--- ─── Discussions ──────────────────────────────────────────────────────────────
+-- =============================================================================
+-- DISCUSSIONS
+-- =============================================================================
 
-create table public.discussions (
+create table if not exists public.discussions (
   id          uuid primary key default gen_random_uuid(),
   book_id     uuid not null references public.books(id) on delete cascade,
   author_id   uuid not null references public.profiles(id) on delete cascade,
@@ -204,19 +261,29 @@ create table public.discussions (
 );
 
 alter table public.discussions enable row level security;
+
+drop policy if exists "Discussions publicly readable" on public.discussions;
 create policy "Discussions publicly readable" on public.discussions for select using (true);
+
+drop policy if exists "Discussions insert by authenticated" on public.discussions;
 create policy "Discussions insert by authenticated" on public.discussions for insert with check (auth.uid() = author_id);
+
+drop policy if exists "Discussions update by author" on public.discussions;
 create policy "Discussions update by author" on public.discussions for update using (auth.uid() = author_id);
+
+drop policy if exists "Discussions delete by author" on public.discussions;
 create policy "Discussions delete by author" on public.discussions for delete using (auth.uid() = author_id);
+
+drop trigger if exists discussions_updated_at on public.discussions;
 create trigger discussions_updated_at before update on public.discussions
   for each row execute procedure public.set_updated_at();
 
 
--- ─── Friendships ──────────────────────────────────────────────────────────────
+-- =============================================================================
+-- FRIENDSHIPS
+-- =============================================================================
 
-create type friendship_status as enum ('pending', 'accepted');
-
-create table public.friendships (
+create table if not exists public.friendships (
   id          uuid primary key default gen_random_uuid(),
   user_id     uuid not null references public.profiles(id) on delete cascade,
   friend_id   uuid not null references public.profiles(id) on delete cascade,
@@ -227,18 +294,28 @@ create table public.friendships (
 );
 
 alter table public.friendships enable row level security;
+
+drop policy if exists "Friendships visible to participants" on public.friendships;
 create policy "Friendships visible to participants"
   on public.friendships for select
   using (auth.uid() = user_id or auth.uid() = friend_id);
+
+drop policy if exists "Friendships insert" on public.friendships;
 create policy "Friendships insert" on public.friendships for insert with check (auth.uid() = user_id);
+
+drop policy if exists "Friendships update by friend" on public.friendships;
 create policy "Friendships update by friend" on public.friendships for update using (auth.uid() = friend_id);
+
+drop policy if exists "Friendships delete by participants" on public.friendships;
 create policy "Friendships delete by participants" on public.friendships for delete
   using (auth.uid() = user_id or auth.uid() = friend_id);
 
 
--- ─── Invite Codes ─────────────────────────────────────────────────────────────
+-- =============================================================================
+-- INVITE CODES
+-- =============================================================================
 
-create table public.invite_codes (
+create table if not exists public.invite_codes (
   id          uuid primary key default gen_random_uuid(),
   code        text unique not null default upper(substring(replace(gen_random_uuid()::text, '-', ''), 1, 8)),
   created_by  uuid references public.profiles(id) on delete cascade,
@@ -249,12 +326,22 @@ create table public.invite_codes (
 );
 
 alter table public.invite_codes enable row level security;
-create policy "Invite codes viewable by creator" on public.invite_codes for select using (auth.uid() = created_by or created_by is null);
-create policy "Invite codes insertable by authenticated" on public.invite_codes for insert with check (auth.uid() = created_by);
+
+drop policy if exists "Invite codes viewable by creator" on public.invite_codes;
+create policy "Invite codes viewable by creator" on public.invite_codes for select
+  using (auth.uid() = created_by or created_by is null);
+
+drop policy if exists "Invite codes insertable by authenticated" on public.invite_codes;
+create policy "Invite codes insertable by authenticated" on public.invite_codes for insert
+  with check (auth.uid() = created_by);
+
+drop policy if exists "Invite codes updatable (claim)" on public.invite_codes;
 create policy "Invite codes updatable (claim)" on public.invite_codes for update using (true);
 
 
--- ─── Useful View: Friend Feed ─────────────────────────────────────────────────
+-- =============================================================================
+-- VIEWS
+-- =============================================================================
 
 create or replace view public.friend_feed as
   select
@@ -274,3 +361,11 @@ create or replace view public.friend_feed as
   join public.books b on b.id = ub.book_id
   where ub.visibility in ('public', 'friends')
   order by ub.updated_at desc;
+
+
+-- =============================================================================
+-- BOOTSTRAP: generate your first invite code
+-- Uncomment and run AFTER the schema is applied:
+-- =============================================================================
+-- insert into public.invite_codes (created_by) values (null);
+-- select code from public.invite_codes order by created_at desc limit 1;
