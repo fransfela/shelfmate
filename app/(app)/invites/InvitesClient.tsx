@@ -1,7 +1,7 @@
 ﻿"use client"
 
 import { useEffect, useState } from "react"
-import { Copy, Check, Plus, UserCheck, Clock, MessageCircle, Share2 } from "lucide-react"
+import { Copy, Check, Plus, UserCheck, Clock, MessageCircle, Share2, Trash2 } from "lucide-react"
 
 type InviteCode = {
   id: string
@@ -30,17 +30,17 @@ function CopyButton({ text, title = "Copy" }: { text: string; title?: string }) 
   )
 }
 
-function buildMessage(signupUrl: string) {
-  return `Hey! I'd like to invite you to Shelfmate, our private book club app where we track and share what we're reading.\n\nSign up with my invite link:\n${signupUrl}\n\nSee you on the shelf!`
+function buildMessage(code: string, signupBase: string) {
+  return `Hey! I'd like to invite you to Shelfmate, our private book club app where we track and share what we're reading.\n\nSign up at: ${signupBase}\nYour sign-up code is: ${code}\n\nSee you on the shelf!`
 }
 
-function ShareButtons({ signupUrl }: { signupUrl: string }) {
-  const message = buildMessage(signupUrl)
+function ShareButtons({ code, signupBase }: { code: string; signupBase: string }) {
+  const message = buildMessage(code, signupBase)
   const encoded = encodeURIComponent(message)
 
   function shareNative() {
     if (navigator.share) {
-      navigator.share({ text: message, url: signupUrl }).catch(() => null)
+      navigator.share({ text: message, url: signupBase }).catch(() => null)
     }
   }
 
@@ -85,8 +85,10 @@ export default function InvitesClient() {
   const [codes, setCodes] = useState<InviteCode[]>([])
   const [loading, setLoading] = useState(true)
   const [generating, setGenerating] = useState(false)
+  const [deleting, setDeleting] = useState<string | null>(null)
 
   const origin = typeof window !== "undefined" ? window.location.origin : ""
+  const signupBase = `${origin}/signup`
 
   async function fetchCodes() {
     const res = await fetch("/api/invites")
@@ -99,6 +101,13 @@ export default function InvitesClient() {
     const res = await fetch("/api/invites", { method: "POST" })
     if (res.ok) await fetchCodes()
     setGenerating(false)
+  }
+
+  async function deleteCode(id: string) {
+    setDeleting(id)
+    await fetch(`/api/invites?id=${id}`, { method: "DELETE" })
+    setCodes((prev) => prev.filter((c) => c.id !== id))
+    setDeleting(null)
   }
 
   useEffect(() => { fetchCodes() }, [])
@@ -139,9 +148,7 @@ export default function InvitesClient() {
                 <Clock size={12} /> Available ({unused.length})
               </h2>
               <div className="space-y-3">
-                {unused.map((c) => {
-                  const signupUrl = `${origin}/signup?code=${c.code}`
-                  return (
+                {unused.map((c) => (
                     <div
                       key={c.id}
                       className="flex flex-col gap-2 px-4 py-3 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800"
@@ -158,15 +165,14 @@ export default function InvitesClient() {
                         </span>
                       </div>
                       <div className="rounded-lg bg-stone-50 dark:bg-stone-800 px-3 py-2 text-xs text-stone-600 dark:text-stone-300 whitespace-pre-wrap leading-relaxed border border-stone-100 dark:border-stone-700">
-                        {buildMessage(signupUrl)}
+                        {buildMessage(c.code, signupBase)}
                       </div>
                       <div className="flex items-center gap-2 pt-1 border-t border-stone-100 dark:border-stone-800">
                         <span className="text-xs text-stone-400 dark:text-stone-500">Share:</span>
-                        <ShareButtons signupUrl={signupUrl} />
+                        <ShareButtons code={c.code} signupBase={signupBase} />
                       </div>
                     </div>
-                  )
-                })}
+                ))}
               </div>
             </section>
           )}
@@ -180,15 +186,25 @@ export default function InvitesClient() {
                 {used.map((c) => (
                   <div
                     key={c.id}
-                    className="flex items-center justify-between px-4 py-3 rounded-xl bg-stone-50 dark:bg-stone-900/50 border border-stone-100 dark:border-stone-800/50 opacity-60"
+                    className="flex items-center justify-between px-4 py-3 rounded-xl bg-stone-50 dark:bg-stone-900/50 border border-stone-100 dark:border-stone-800/50"
                   >
-                    <span className="font-mono text-base font-semibold tracking-widest text-stone-400 dark:text-stone-500 line-through">
-                      {c.code}
-                    </span>
-                    <span className="text-xs text-stone-400 dark:text-stone-500">
-                      Used by @{c.used_by_profile?.username ?? "unknown"} &middot;{" "}
-                      {c.used_at ? new Date(c.used_at).toLocaleDateString() : ""}
-                    </span>
+                    <div className="flex flex-col">
+                      <span className="font-mono text-sm font-semibold tracking-widest text-stone-400 dark:text-stone-500 line-through">
+                        {c.code}
+                      </span>
+                      <span className="text-xs text-stone-400 dark:text-stone-500 mt-0.5">
+                        Used by @{c.used_by_profile?.username ?? "unknown"} &middot;{" "}
+                        {c.used_at ? new Date(c.used_at).toLocaleDateString() : ""}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => deleteCode(c.id)}
+                      disabled={deleting === c.id}
+                      className="p-1.5 rounded text-stone-300 dark:text-stone-600 hover:text-red-400 dark:hover:text-red-400 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors disabled:opacity-50"
+                      title="Delete"
+                    >
+                      <Trash2 size={13} />
+                    </button>
                   </div>
                 ))}
               </div>

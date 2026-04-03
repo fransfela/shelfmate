@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { LayoutDashboard, BookMarked, Search, BarChart3, User, LogOut, Menu, X, Mail, Users2 } from "lucide-react"
+import { LayoutDashboard, BookMarked, Search, BarChart3, User, LogOut, Menu, X, Mail, Users2, Settings } from "lucide-react"
 import { useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import ThemeToggle from "@/components/ThemeToggle"
@@ -69,6 +69,13 @@ export default function Nav({ username, avatarUrl }: { username: string; avatarU
             )}
             <span>@{username}</span>
           </Link>
+          <Link
+            href="/settings"
+            className="hidden sm:flex p-1.5 text-stone-400 dark:text-stone-500 hover:text-stone-700 dark:hover:text-stone-200 transition-colors"
+            title="Settings"
+          >
+            <Settings size={16} />
+          </Link>
           <ThemeToggle />
           <button
             onClick={signOut}
@@ -106,6 +113,9 @@ export default function Nav({ username, avatarUrl }: { username: string; avatarU
           ))}
           <Link href={`/profile/${username}`} onClick={() => setOpen(false)} className="flex items-center gap-2 px-3 py-2 text-sm text-stone-500 dark:text-stone-400">
             <User size={14} /> @{username}
+          </Link>
+          <Link href="/settings" onClick={() => setOpen(false)} className="flex items-center gap-2 px-3 py-2 text-sm text-stone-500 dark:text-stone-400">
+            <Settings size={14} /> Settings
           </Link>
           <button onClick={signOut} className="flex items-center gap-2 px-3 py-2 text-sm text-stone-500 dark:text-stone-400 w-full">
             <LogOut size={14} /> Sign out

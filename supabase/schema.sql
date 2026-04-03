@@ -340,6 +340,10 @@ create policy "Invite codes insertable by authenticated" on public.invite_codes 
 drop policy if exists "Invite codes updatable (claim)" on public.invite_codes;
 create policy "Invite codes updatable (claim)" on public.invite_codes for update using (true);
 
+drop policy if exists "Invite codes deletable by creator" on public.invite_codes;
+create policy "Invite codes deletable by creator" on public.invite_codes for delete
+  using (auth.uid() = created_by);
+
 
 -- =============================================================================
 -- BOOK CLUB HELPER FUNCTIONS (security definer to avoid RLS recursion)
