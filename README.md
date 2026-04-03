@@ -8,14 +8,14 @@ Built with Next.js 15, Supabase, Tailwind CSS, and Recharts. Open source. Self-h
 
 ## Features
 
-- **Shelf** — Track every book: Want to Read, Reading, Finished, Abandoned
-- **Search** — Powered by Google Books API. No copyright issues, ever.
-- **Reviews & Notes** — Write reviews, save quotes, set visibility per item
-- **Stats** — Charts of your reading history, genre breakdown, reading pace
-- **Friend Feed** — See what friends are reading in real time
-- **Invite System** — Closed community, you control who joins
-- **Public Profiles** — Share your reading life at `/profile/yourname`
-- **Reading Lists** — Curated collections you can make public or private
+- **Shelf** - Track every book: Want to Read, Reading, Finished, Abandoned
+- **Search** - Powered by Google Books API. No copyright issues, ever.
+- **Reviews & Notes** - Write reviews, save quotes, set visibility per item
+- **Stats** - Charts of your reading history, genre breakdown, reading pace
+- **Friend Feed** - See what friends are reading in real time
+- **Invite System** - Closed community, you control who joins
+- **Public Profiles** - Share your reading life at `/profile/yourname`
+- **Reading Lists** - Curated collections you can make public or private
 
 ---
 
@@ -79,7 +79,7 @@ npm run dev
 
 ## Deployment
 
-Deploy to Vercel — add your `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` as environment variables.
+Deploy to Vercel - add your `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` as environment variables.
 
 ---
 
@@ -111,4 +111,4 @@ folio/
 
 ## License
 
-MIT — free to use, self-host, and modify.
+MIT - free to use, self-host, and modify.
