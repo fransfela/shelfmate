@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { BookOpen, Users, BarChart3, Lock } from "lucide-react"
+import ThemeToggle from "@/components/ThemeToggle"
 
 const features = [
   {
@@ -30,7 +31,8 @@ export default function LandingPage() {
       {/* Nav */}
       <header className="px-6 py-5 flex items-center justify-between border-b border-stone-200 dark:border-stone-800 bg-white/80 dark:bg-stone-900/80 backdrop-blur sticky top-0 z-10">
         <span className="font-semibold tracking-tight text-lg text-stone-900 dark:text-stone-100">shelfmate</span>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
+          <ThemeToggle />
           <Link href="/login" className="text-sm text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 transition-colors">
             Sign in
           </Link>

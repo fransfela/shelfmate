@@ -241,7 +241,7 @@ create policy "Friendships delete by participants" on public.friendships for del
 create table public.invite_codes (
   id          uuid primary key default gen_random_uuid(),
   code        text unique not null default upper(substring(replace(gen_random_uuid()::text, '-', ''), 1, 8)),
-  created_by  uuid not null references public.profiles(id) on delete cascade,
+  created_by  uuid references public.profiles(id) on delete cascade,
   used_by     uuid references public.profiles(id),
   used_at     timestamptz,
   expires_at  timestamptz,
@@ -249,7 +249,7 @@ create table public.invite_codes (
 );
 
 alter table public.invite_codes enable row level security;
-create policy "Invite codes viewable by creator" on public.invite_codes for select using (auth.uid() = created_by);
+create policy "Invite codes viewable by creator" on public.invite_codes for select using (auth.uid() = created_by or created_by is null);
 create policy "Invite codes insertable by authenticated" on public.invite_codes for insert with check (auth.uid() = created_by);
 create policy "Invite codes updatable (claim)" on public.invite_codes for update using (true);
 
