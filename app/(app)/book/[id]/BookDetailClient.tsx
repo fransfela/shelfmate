@@ -1,6 +1,10 @@
 "use client"
 
 import { useState } from "react"
+
+function stripHtml(html: string) {
+  return html.replace(/<[^>]*>/g, " ").replace(/\s{2,}/g, " ").trim()
+}
 import { ArrowLeft, BookOpen, Calendar, Star, Check } from "lucide-react"
 import Link from "next/link"
 import type { Book, UserBook, ReadingStatus } from "@/lib/types"
@@ -148,7 +152,7 @@ export default function BookDetailClient({ book, userBook: initial }: Props) {
 
       {book.description && (
         <p className="mt-6 text-sm text-stone-600 dark:text-stone-400 leading-relaxed line-clamp-6">
-          {book.description}
+          {stripHtml(book.description)}
         </p>
       )}
 
