@@ -380,7 +380,10 @@ alter table public.book_clubs enable row level security;
 drop policy if exists "Club members can view clubs" on public.book_clubs;
 create policy "Club members can view clubs"
   on public.book_clubs for select
-  using (id in (select public.get_my_club_ids()));
+  using (
+    id in (select public.get_my_club_ids())
+    or created_by = auth.uid()
+  );
 
 drop policy if exists "Authenticated users can create clubs" on public.book_clubs;
 create policy "Authenticated users can create clubs"

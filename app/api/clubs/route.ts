@@ -40,21 +40,22 @@ export async function POST(request: Request) {
   const { name, description, emoji } = await request.json()
   if (!name?.trim()) return NextResponse.json({ error: "Club name is required" }, { status: 400 })
 
+  // Generate ID so we can skip .select() — avoids SELECT RLS check before membership exists
+  const clubId = crypto.randomUUID()
+
   // Create club
-  const { data: club, error: clubErr } = await supabase
+  const { error: clubErr } = await supabase
     .from("book_clubs")
-    .insert({ name: name.trim(), description: description?.trim() || null, emoji: emoji || "📚", created_by: user.id })
-    .select()
-    .single()
+    .insert({ id: clubId, name: name.trim(), description: description?.trim() || null, emoji: emoji || "📚", created_by: user.id })
 
   if (clubErr) return NextResponse.json({ error: clubErr.message }, { status: 500 })
 
   // Add creator as owner
   const { error: memberErr } = await supabase
     .from("book_club_members")
-    .insert({ club_id: club.id, user_id: user.id, role: "owner" })
+    .insert({ club_id: clubId, user_id: user.id, role: "owner" })
 
   if (memberErr) return NextResponse.json({ error: memberErr.message }, { status: 500 })
 
-  return NextResponse.json(club, { status: 201 })
+  return NextResponse.json({ id: clubId, name: name.trim(), description: description?.trim() || null, emoji: emoji || "📚", created_by: user.id }, { status: 201 })
 }
