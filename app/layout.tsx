@@ -13,8 +13,15 @@ export const metadata: Metadata = {
   description: "A private book club for people who love to read and share.",
   openGraph: {
     title: "Shelfmate",
-    description: "Track what you read. Share what you love.",
+    description: "Your reading life, together.",
     type: "website",
+    url: "https://myshelfmate.vercel.app",
+    siteName: "Shelfmate",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Shelfmate",
+    description: "Your reading life, together.",
   },
 };
 
