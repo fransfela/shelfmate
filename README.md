@@ -67,7 +67,7 @@ insert into public.invite_codes (created_by) values (null);
 select code from public.invite_codes order by created_at desc limit 1;
 ```
 
-Copy the 8-character code (e.g. `A3BF92D1`) — you'll need it to sign up.
+Copy the 8-character code (e.g. `A3BF92D1`). You will need it to sign up.
 
 ### 5. Configure environment variables
 

@@ -128,6 +128,19 @@ export interface ReadingStats {
   average_rating: number | null
   top_genres: Array<{ genre: string; count: number }>
   books_per_month: Array<{ month: string; count: number }>
+  // pace metrics
+  total_pages_read: number
+  avg_days_per_book: number | null
+  avg_pages_per_day: number | null
+  fastest_book: { title: string; days: number; pages: number | null } | null
+  reading_history: Array<{
+    title: string
+    days: number | null
+    pages: number | null
+    pages_per_day: number | null
+    finished_at: string
+    started_at: string | null
+  }>
 }
 
 export interface FeedItem {
