@@ -328,9 +328,10 @@ create table if not exists public.invite_codes (
 
 alter table public.invite_codes enable row level security;
 
+-- Allow anyone to read codes (needed so signup form can validate codes before auth session exists)
 drop policy if exists "Invite codes viewable by creator" on public.invite_codes;
-create policy "Invite codes viewable by creator" on public.invite_codes for select
-  using (auth.uid() = created_by or created_by is null);
+drop policy if exists "Invite codes readable" on public.invite_codes;
+create policy "Invite codes readable" on public.invite_codes for select using (true);
 
 drop policy if exists "Invite codes insertable by authenticated" on public.invite_codes;
 create policy "Invite codes insertable by authenticated" on public.invite_codes for insert
@@ -338,6 +339,150 @@ create policy "Invite codes insertable by authenticated" on public.invite_codes 
 
 drop policy if exists "Invite codes updatable (claim)" on public.invite_codes;
 create policy "Invite codes updatable (claim)" on public.invite_codes for update using (true);
+
+
+-- =============================================================================
+-- BOOK CLUBS
+-- =============================================================================
+
+create table if not exists public.book_clubs (
+  id           uuid primary key default gen_random_uuid(),
+  name         text not null,
+  description  text,
+  emoji        text not null default '📚',
+  created_by   uuid references public.profiles(id) on delete set null,
+  created_at   timestamptz not null default now()
+);
+
+alter table public.book_clubs enable row level security;
+
+drop policy if exists "Club members can view clubs" on public.book_clubs;
+create policy "Club members can view clubs"
+  on public.book_clubs for select
+  using (
+    id in (select club_id from public.book_club_members where user_id = auth.uid())
+  );
+
+drop policy if exists "Authenticated users can create clubs" on public.book_clubs;
+create policy "Authenticated users can create clubs"
+  on public.book_clubs for insert
+  with check (auth.uid() = created_by);
+
+drop policy if exists "Club owners can update clubs" on public.book_clubs;
+create policy "Club owners can update clubs"
+  on public.book_clubs for update
+  using (
+    id in (select club_id from public.book_club_members where user_id = auth.uid() and role = 'owner')
+  );
+
+drop policy if exists "Club owners can delete clubs" on public.book_clubs;
+create policy "Club owners can delete clubs"
+  on public.book_clubs for delete
+  using (
+    id in (select club_id from public.book_club_members where user_id = auth.uid() and role = 'owner')
+  );
+
+
+-- =============================================================================
+-- BOOK CLUB MEMBERS
+-- =============================================================================
+
+create table if not exists public.book_club_members (
+  id         uuid primary key default gen_random_uuid(),
+  club_id    uuid not null references public.book_clubs(id) on delete cascade,
+  user_id    uuid not null references public.profiles(id) on delete cascade,
+  role       text not null default 'member' check (role in ('owner', 'member')),
+  joined_at  timestamptz not null default now(),
+  unique (club_id, user_id)
+);
+
+alter table public.book_club_members enable row level security;
+
+drop policy if exists "Club members can view membership" on public.book_club_members;
+create policy "Club members can view membership"
+  on public.book_club_members for select
+  using (
+    club_id in (select club_id from public.book_club_members where user_id = auth.uid())
+  );
+
+drop policy if exists "Users can join clubs" on public.book_club_members;
+create policy "Users can join clubs"
+  on public.book_club_members for insert
+  with check (user_id = auth.uid());
+
+drop policy if exists "Club owners can remove members or self-leave" on public.book_club_members;
+create policy "Club owners can remove members or self-leave"
+  on public.book_club_members for delete
+  using (
+    user_id = auth.uid()
+    or club_id in (select club_id from public.book_club_members where user_id = auth.uid() and role = 'owner')
+  );
+
+
+-- =============================================================================
+-- BOOK CLUB INVITES
+-- =============================================================================
+
+create table if not exists public.book_club_invites (
+  id          uuid primary key default gen_random_uuid(),
+  club_id     uuid not null references public.book_clubs(id) on delete cascade,
+  code        text unique not null default upper(substring(replace(gen_random_uuid()::text, '-', ''), 1, 8)),
+  created_by  uuid references public.profiles(id) on delete set null,
+  used_by     uuid references public.profiles(id) on delete set null,
+  used_at     timestamptz,
+  created_at  timestamptz not null default now()
+);
+
+alter table public.book_club_invites enable row level security;
+
+-- Anyone can read invite codes (needed to validate/preview before joining)
+drop policy if exists "Club invites publicly readable" on public.book_club_invites;
+create policy "Club invites publicly readable"
+  on public.book_club_invites for select using (true);
+
+drop policy if exists "Club members can create invites" on public.book_club_invites;
+create policy "Club members can create invites"
+  on public.book_club_invites for insert
+  with check (
+    auth.uid() = created_by
+    and club_id in (select club_id from public.book_club_members where user_id = auth.uid())
+  );
+
+drop policy if exists "Club invites claimable" on public.book_club_invites;
+create policy "Club invites claimable"
+  on public.book_club_invites for update using (true);
+
+
+-- =============================================================================
+-- CLUB-BASED VISIBILITY FOR USER BOOKS
+-- =============================================================================
+
+-- Club members can see each other's public/friends-visibility books
+drop policy if exists "Club members see each other books" on public.user_books;
+create policy "Club members see each other books"
+  on public.user_books for select
+  using (
+    visibility in ('public', 'friends')
+    and user_id in (
+      select bcm2.user_id
+      from public.book_club_members bcm1
+      join public.book_club_members bcm2 on bcm1.club_id = bcm2.club_id
+      where bcm1.user_id = auth.uid() and bcm2.user_id != auth.uid()
+    )
+  );
+
+-- Club members can see each other's profiles (even if profile_public = false)
+drop policy if exists "Club members see each other profiles" on public.profiles;
+create policy "Club members see each other profiles"
+  on public.profiles for select
+  using (
+    id in (
+      select bcm2.user_id
+      from public.book_club_members bcm1
+      join public.book_club_members bcm2 on bcm1.club_id = bcm2.club_id
+      where bcm1.user_id = auth.uid()
+    )
+  );
 
 
 -- =============================================================================

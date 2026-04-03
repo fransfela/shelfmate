@@ -2,12 +2,14 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { BookOpen } from "lucide-react"
 
 export default function LoginForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirectTo = searchParams.get("redirect") ?? "/dashboard"
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
@@ -23,7 +25,7 @@ export default function LoginForm() {
       setError(error.message)
       setLoading(false)
     } else {
-      router.push("/dashboard")
+      router.push(redirectTo)
       router.refresh()
     }
   }

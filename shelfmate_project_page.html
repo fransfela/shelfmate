@@ -1,0 +1,261 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=DM+Mono:wght@400;500&display=swap');
+  :root {
+    --ink: var(--color-text-primary);
+    --muted: var(--color-text-secondary);
+    --dim: var(--color-text-tertiary);
+    --surface: var(--color-background-secondary);
+    --border: var(--color-border-tertiary);
+    --accent: #3B6D11;
+    --accent-light: #EAF3DE;
+    --accent-mid: #639922;
+  }
+  @media(prefers-color-scheme:dark){
+    :root{ --accent:#97C459; --accent-light:#173404; --accent-mid:#639922; }
+  }
+  .sm-wrap { font-family: var(--font-sans); padding: 0.5rem 0 2.5rem; }
+
+  /* Hero */
+  .sm-hero { display:flex; flex-direction:column; gap:0; margin-bottom:2.5rem; padding-bottom:2rem; border-bottom:1px solid var(--border); }
+  .sm-eyebrow { font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--dim); margin:0 0 1rem; font-family:var(--font-mono); }
+  .sm-hero-row { display:flex; align-items:flex-end; justify-content:space-between; flex-wrap:wrap; gap:1rem; margin-bottom:0.8rem; }
+  .sm-title { font-family:'Lora', Georgia, serif; font-size:42px; font-weight:400; color:var(--ink); margin:0; letter-spacing:-0.02em; line-height:1; }
+  .sm-title em { font-style:italic; color:var(--accent); }
+  .sm-links { display:flex; gap:8px; }
+  .sm-link { display:flex; align-items:center; gap:5px; font-size:11px; font-family:var(--font-mono); padding:5px 10px; border:1px solid var(--border); border-radius:6px; color:var(--muted); text-decoration:none; background:var(--surface); transition:border-color 0.15s, color 0.15s; }
+  .sm-link:hover { border-color:var(--accent-mid); color:var(--accent); }
+  .sm-link svg { width:12px; height:12px; flex-shrink:0; }
+  .sm-tagline { font-family:'Lora', Georgia, serif; font-size:17px; font-style:italic; color:var(--muted); margin:0; line-height:1.6; max-width:520px; }
+
+  /* Book spine decoration */
+  .sm-spines { display:flex; gap:4px; margin-bottom:2rem; align-items:flex-end; }
+  .spine { border-radius:3px 3px 2px 2px; display:flex; align-items:center; justify-content:center; }
+  .spine-text { font-family:'Lora', Georgia, serif; font-size:8px; writing-mode:vertical-rl; transform:rotate(180deg); letter-spacing:0.06em; opacity:0.7; white-space:nowrap; }
+
+  /* Prose sections */
+  .sm-section { margin-bottom:2rem; }
+  .sm-section-label { font-size:10px; font-family:var(--font-mono); letter-spacing:0.1em; text-transform:uppercase; color:var(--dim); margin:0 0 0.8rem; padding-bottom:0.5rem; border-bottom:1px solid var(--border); }
+  .sm-prose { font-family:'Lora', Georgia, serif; font-size:15px; line-height:1.85; color:var(--muted); margin:0; }
+  .sm-prose + .sm-prose { margin-top:0.9rem; }
+
+  /* Feature cards */
+  .sm-features { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:0; border:1px solid var(--border); border-radius:var(--border-radius-lg); overflow:hidden; margin-bottom:2rem; }
+  .feat { padding:1rem 1.1rem; border-right:1px solid var(--border); border-bottom:1px solid var(--border); }
+  .feat:nth-child(n) { border-right:1px solid var(--border); }
+  .feat-icon { font-size:15px; margin-bottom:0.5rem; }
+  .feat-title { font-size:13px; font-weight:500; color:var(--ink); margin:0 0 0.3rem; }
+  .feat-desc { font-size:12px; line-height:1.6; color:var(--dim); margin:0; }
+
+  /* Stack pills */
+  .sm-stack { display:flex; flex-wrap:wrap; gap:6px; margin-top:0.8rem; }
+  .stack-pill { font-size:11px; font-family:var(--font-mono); padding:3px 9px; border-radius:20px; border:1px solid var(--border); color:var(--dim); background:var(--surface); }
+  .stack-pill.hi { border-color:var(--accent-mid); color:var(--accent); background:var(--accent-light); }
+
+  /* Closing quote */
+  .sm-closing { border-left:2px solid var(--accent-mid); padding:0.8rem 0 0.8rem 1.2rem; margin-top:2rem; }
+  .sm-closing p { font-family:'Lora', Georgia, serif; font-size:14px; font-style:italic; line-height:1.75; color:var(--dim); margin:0; }
+  .sm-closing span { color:var(--accent); font-style:normal; font-size:11px; font-family:var(--font-mono); display:block; margin-top:0.5rem; letter-spacing:0.04em; }
+
+  /* Mock shelf UI */
+  .sm-mockup { border:1px solid var(--border); border-radius:var(--border-radius-lg); overflow:hidden; margin-bottom:2rem; background:var(--surface); }
+  .mock-topbar { display:flex; align-items:center; gap:6px; padding:8px 12px; border-bottom:1px solid var(--border); background:var(--color-background-primary); }
+  .mock-dot { width:8px; height:8px; border-radius:50%; }
+  .mock-url { font-size:10px; font-family:var(--font-mono); color:var(--dim); margin:0 auto; }
+  .mock-body { padding:1.2rem; display:flex; flex-direction:column; gap:1rem; }
+  .mock-shelf-label { font-size:10px; font-family:var(--font-mono); text-transform:uppercase; letter-spacing:0.08em; color:var(--dim); }
+  .mock-books { display:flex; gap:8px; flex-wrap:wrap; }
+  .mock-book { display:flex; flex-direction:column; align-items:center; gap:4px; }
+  .book-spine-v { width:36px; border-radius:3px; display:flex; align-items:center; justify-content:center; }
+  .book-title-label { font-size:8px; font-family:var(--font-mono); color:var(--dim); text-align:center; max-width:40px; line-height:1.3; }
+  .book-status { font-size:8px; padding:1px 5px; border-radius:10px; font-family:var(--font-mono); }
+  .bs-read { background:var(--accent-light); color:var(--accent); border:1px solid var(--accent-mid); }
+  .bs-reading { background:#E6F1FB; color:#185FA5; border:1px solid #378ADD; }
+  .bs-want { background:var(--color-background-primary); color:var(--dim); border:1px solid var(--border); }
+  @media(prefers-color-scheme:dark){
+    .bs-reading{background:#042C53;color:#85B7EB;border-color:#185FA5;}
+  }
+  .mock-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+  .stat-box { background:var(--color-background-primary); border:1px solid var(--border); border-radius:8px; padding:8px 10px; }
+  .stat-num { font-size:20px; font-weight:500; color:var(--ink); font-family:var(--font-mono); line-height:1; }
+  .stat-lbl { font-size:9px; color:var(--dim); margin-top:2px; font-family:var(--font-mono); letter-spacing:0.04em; }
+  .mock-friends { display:flex; flex-direction:column; gap:6px; }
+  .friend-row { display:flex; align-items:center; gap:8px; background:var(--color-background-primary); border:1px solid var(--border); border-radius:8px; padding:6px 10px; }
+  .friend-avatar { width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:500; color:white; flex-shrink:0; }
+  .friend-name { font-size:11px; color:var(--muted); font-family:var(--font-mono); flex:1; }
+  .friend-book { font-size:10px; color:var(--dim); font-family:'Lora',Georgia,serif; font-style:italic; }
+</style>
+
+<div class="sm-wrap">
+
+  <!-- Hero -->
+  <div class="sm-hero">
+    <p class="sm-eyebrow">Side project &mdash; 2025 &mdash; Next.js &middot; Supabase</p>
+    <div class="sm-hero-row">
+      <h1 class="sm-title">Shelf<em>mate</em></h1>
+      <div class="sm-links">
+        <a class="sm-link" href="https://myshelfmate.vercel.app" target="_blank">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h10a1 1 0 001-1v-3M9 2h5m0 0v5m0-5L7 10"/></svg>
+          Live site
+        </a>
+        <a class="sm-link" href="https://github.com/fransfela/shelfmate" target="_blank">
+          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+          GitHub
+        </a>
+      </div>
+    </div>
+    <p class="sm-tagline">An invite-only book club for people who actually read.</p>
+  </div>
+
+  <!-- Book spines decoration -->
+  <div class="sm-spines">
+    <div class="spine" style="width:18px;height:90px;background:#3B6D11;"><span class="spine-text" style="color:#C0DD97;">Borges</span></div>
+    <div class="spine" style="width:14px;height:110px;background:#0C447C;"><span class="spine-text" style="color:#B5D4F4;">Calvino</span></div>
+    <div class="spine" style="width:22px;height:75px;background:#633806;"><span class="spine-text" style="color:#FAC775;">Sebald</span></div>
+    <div class="spine" style="width:16px;height:95px;background:#533AB7;"><span class="spine-text" style="color:#CECBF6;">Woolf</span></div>
+    <div class="spine" style="width:20px;height:105px;background:#3B6D11;"><span class="spine-text" style="color:#C0DD97;">Pessoa</span></div>
+    <div class="spine" style="width:12px;height:80px;background:#712B13;"><span class="spine-text" style="color:#F5C4B3;">Camus</span></div>
+    <div class="spine" style="width:18px;height:115px;background:#185FA5;"><span class="spine-text" style="color:#B5D4F4;">Proust</span></div>
+    <div class="spine" style="width:15px;height:88px;background:#3B6D11;opacity:0.6;"><span class="spine-text" style="color:#C0DD97;">Achebe</span></div>
+    <div class="spine" style="width:20px;height:70px;background:#444441;"><span class="spine-text" style="color:#D3D1C7;">Kafka</span></div>
+    <div class="spine" style="width:14px;height:100px;background:#85F0B;background:#854F0B;"><span class="spine-text" style="color:#FAC775;">Pamuk</span></div>
+  </div>
+
+  <!-- Intro -->
+  <div class="sm-section">
+    <p class="sm-section-label">About</p>
+    <p class="sm-prose">Most book-tracking apps feel like inventory systems. Shelfmate is something smaller and more deliberate — a shared shelf for a circle of people who read, built to feel like the conversation that happens after the last page.</p>
+    <p class="sm-prose">The invite-only model is a constraint by design. The list stays short, the shelves stay personal, and nobody is performing for an audience.</p>
+  </div>
+
+  <!-- Mockup -->
+  <div class="sm-mockup">
+    <div class="mock-topbar">
+      <span class="mock-dot" style="background:#E24B4A;"></span>
+      <span class="mock-dot" style="background:#EF9F27;"></span>
+      <span class="mock-dot" style="background:#639922;"></span>
+      <span class="mock-url">myshelfmate.vercel.app</span>
+    </div>
+    <div class="mock-body">
+      <div>
+        <div class="mock-shelf-label" style="margin-bottom:0.6rem;">Your shelf</div>
+        <div class="mock-books">
+          <div class="mock-book">
+            <div class="book-spine-v" style="height:54px;background:#3B6D11;"></div>
+            <div class="book-title-label">The Rings of Saturn</div>
+            <span class="book-status bs-read">read</span>
+          </div>
+          <div class="mock-book">
+            <div class="book-spine-v" style="height:58px;background:#0C447C;"></div>
+            <div class="book-title-label">If on a winter's night</div>
+            <span class="book-status bs-reading">reading</span>
+          </div>
+          <div class="mock-book">
+            <div class="book-spine-v" style="height:50px;background:#533AB7;"></div>
+            <div class="book-title-label">The Waves</div>
+            <span class="book-status bs-read">read</span>
+          </div>
+          <div class="mock-book">
+            <div class="book-spine-v" style="height:62px;background:#633806;"></div>
+            <div class="book-title-label">The Book of Disquiet</div>
+            <span class="book-status bs-want">want to read</span>
+          </div>
+          <div class="mock-book">
+            <div class="book-spine-v" style="height:52px;background:#712B13;"></div>
+            <div class="book-title-label">The Stranger</div>
+            <span class="book-status bs-read">read</span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="mock-shelf-label" style="margin-bottom:0.6rem;">Reading stats</div>
+        <div class="mock-stats">
+          <div class="stat-box"><div class="stat-num">24</div><div class="stat-lbl">books read</div></div>
+          <div class="stat-box"><div class="stat-num">1</div><div class="stat-lbl">reading now</div></div>
+          <div class="stat-box"><div class="stat-num">8</div><div class="stat-lbl">on the list</div></div>
+        </div>
+      </div>
+      <div>
+        <div class="mock-shelf-label" style="margin-bottom:0.6rem;">Friends reading now</div>
+        <div class="mock-friends">
+          <div class="friend-row">
+            <div class="friend-avatar" style="background:#3B6D11;">A</div>
+            <span class="friend-name">aisha</span>
+            <span class="friend-book">Pachinko &mdash; Lee</span>
+          </div>
+          <div class="friend-row">
+            <div class="friend-avatar" style="background:#0C447C;">D</div>
+            <span class="friend-name">dani</span>
+            <span class="friend-book">Stoner &mdash; Williams</span>
+          </div>
+          <div class="friend-row">
+            <div class="friend-avatar" style="background:#533AB7;">M</div>
+            <span class="friend-name">marco</span>
+            <span class="friend-book">Austerlitz &mdash; Sebald</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Features -->
+  <div class="sm-section">
+    <p class="sm-section-label">Features</p>
+    <div class="sm-features">
+      <div class="feat">
+        <div class="feat-icon">&#128274;</div>
+        <div class="feat-title">Invite-only</div>
+        <div class="feat-desc">New members join via shareable codes. No open registration, no strangers.</div>
+      </div>
+      <div class="feat">
+        <div class="feat-icon">&#128218;</div>
+        <div class="feat-title">Personal shelf</div>
+        <div class="feat-desc">Three reading states per book: want to read, reading, read. Backed by the Google Books API.</div>
+      </div>
+      <div class="feat">
+        <div class="feat-icon">&#128101;</div>
+        <div class="feat-title">Friend system</div>
+        <div class="feat-desc">Mutual and quiet. See what friends are reading. No feeds, no likes, no noise.</div>
+      </div>
+      <div class="feat">
+        <div class="feat-icon">&#128202;</div>
+        <div class="feat-title">Reading stats</div>
+        <div class="feat-desc">A lightweight dashboard tracking books read, in progress, and queued.</div>
+      </div>
+      <div class="feat">
+        <div class="feat-icon">&#9680;</div>
+        <div class="feat-title">Dark mode</div>
+        <div class="feat-desc">Proper dark mode via next-themes. Most reading happens at night.</div>
+      </div>
+      <div class="feat">
+        <div class="feat-icon">&#9729;</div>
+        <div class="feat-title">One-click deploy</div>
+        <div class="feat-desc">Deployable to Vercel in minutes. Run your own instance for your own circle.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stack -->
+  <div class="sm-section">
+    <p class="sm-section-label">Stack</p>
+    <p class="sm-prose">Built on Next.js 15 with the App Router and TypeScript throughout. Data lives in Supabase — PostgreSQL with row-level security so each user can only touch their own records. Styled with Tailwind CSS v4.</p>
+    <div class="sm-stack" style="margin-top:0.8rem;">
+      <span class="stack-pill hi">Next.js 15</span>
+      <span class="stack-pill hi">TypeScript</span>
+      <span class="stack-pill hi">Supabase</span>
+      <span class="stack-pill hi">Tailwind v4</span>
+      <span class="stack-pill">App Router</span>
+      <span class="stack-pill">PostgreSQL + RLS</span>
+      <span class="stack-pill">next-themes</span>
+      <span class="stack-pill">Google Books API</span>
+      <span class="stack-pill">Vercel</span>
+    </div>
+  </div>
+
+  <!-- Closing -->
+  <div class="sm-closing">
+    <p>Shelfmate is invite-only and actively used by a small group of readers. The code is open if you want to run your own circle.</p>
+    <span>&#8594; myshelfmate.vercel.app</span>
+  </div>
+
+</div>
