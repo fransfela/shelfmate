@@ -342,6 +342,23 @@ create policy "Invite codes updatable (claim)" on public.invite_codes for update
 
 
 -- =============================================================================
+-- BOOK CLUB HELPER FUNCTIONS (security definer to avoid RLS recursion)
+-- =============================================================================
+
+-- Returns club_ids the current user belongs to (bypasses RLS to prevent recursion)
+create or replace function public.get_my_club_ids()
+returns setof uuid language sql security definer stable set search_path = public as $$
+  select club_id from public.book_club_members where user_id = auth.uid();
+$$;
+
+-- Returns club_ids the current user owns (bypasses RLS to prevent recursion)
+create or replace function public.get_my_owned_club_ids()
+returns setof uuid language sql security definer stable set search_path = public as $$
+  select club_id from public.book_club_members where user_id = auth.uid() and role = 'owner';
+$$;
+
+
+-- =============================================================================
 -- BOOK CLUBS
 -- =============================================================================
 
@@ -359,9 +376,7 @@ alter table public.book_clubs enable row level security;
 drop policy if exists "Club members can view clubs" on public.book_clubs;
 create policy "Club members can view clubs"
   on public.book_clubs for select
-  using (
-    id in (select club_id from public.book_club_members where user_id = auth.uid())
-  );
+  using (id in (select public.get_my_club_ids()));
 
 drop policy if exists "Authenticated users can create clubs" on public.book_clubs;
 create policy "Authenticated users can create clubs"
@@ -371,16 +386,12 @@ create policy "Authenticated users can create clubs"
 drop policy if exists "Club owners can update clubs" on public.book_clubs;
 create policy "Club owners can update clubs"
   on public.book_clubs for update
-  using (
-    id in (select club_id from public.book_club_members where user_id = auth.uid() and role = 'owner')
-  );
+  using (id in (select public.get_my_owned_club_ids()));
 
 drop policy if exists "Club owners can delete clubs" on public.book_clubs;
 create policy "Club owners can delete clubs"
   on public.book_clubs for delete
-  using (
-    id in (select club_id from public.book_club_members where user_id = auth.uid() and role = 'owner')
-  );
+  using (id in (select public.get_my_owned_club_ids()));
 
 
 -- =============================================================================
@@ -401,9 +412,7 @@ alter table public.book_club_members enable row level security;
 drop policy if exists "Club members can view membership" on public.book_club_members;
 create policy "Club members can view membership"
   on public.book_club_members for select
-  using (
-    club_id in (select club_id from public.book_club_members where user_id = auth.uid())
-  );
+  using (club_id in (select public.get_my_club_ids()));
 
 drop policy if exists "Users can join clubs" on public.book_club_members;
 create policy "Users can join clubs"
@@ -415,7 +424,7 @@ create policy "Club owners can remove members or self-leave"
   on public.book_club_members for delete
   using (
     user_id = auth.uid()
-    or club_id in (select club_id from public.book_club_members where user_id = auth.uid() and role = 'owner')
+    or club_id in (select public.get_my_owned_club_ids())
   );
 
 
@@ -445,7 +454,7 @@ create policy "Club members can create invites"
   on public.book_club_invites for insert
   with check (
     auth.uid() = created_by
-    and club_id in (select club_id from public.book_club_members where user_id = auth.uid())
+    and club_id in (select public.get_my_club_ids())
   );
 
 drop policy if exists "Club invites claimable" on public.book_club_invites;
