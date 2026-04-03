@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { LayoutDashboard, BookMarked, Search, BarChart3, LogOut, Menu, X, Mail, Users2 } from "lucide-react"
+import { LayoutDashboard, BookMarked, Search, BarChart3, User, LogOut, Menu, X, Mail, Users2 } from "lucide-react"
 import { useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import ThemeToggle from "@/components/ThemeToggle"
