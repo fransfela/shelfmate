@@ -9,7 +9,7 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "Shelfmate — Your Reading Life, Together",
+  title: "Shelfmate - Your Reading Life, Together",
   description: "A private book club for people who love to read and share.",
   openGraph: {
     title: "Shelfmate",

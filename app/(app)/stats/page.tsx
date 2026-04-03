@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
 import ReadingStats from "@/components/ReadingStats"
 
-export const metadata = { title: "Stats — Folio" }
+export const metadata = { title: "Stats - Shelfmate" }
 
 export default async function StatsPage() {
   const supabase = await createClient()

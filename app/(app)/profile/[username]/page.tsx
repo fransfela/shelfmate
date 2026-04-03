@@ -8,7 +8,7 @@ type Props = { params: Promise<{ username: string }> }
 
 export async function generateMetadata({ params }: Props) {
   const { username } = await params
-  return { title: `@${username} — Folio` }
+  return { title: `@${username} - Shelfmate` }
 }
 
 export default async function ProfilePage({ params }: Props) {

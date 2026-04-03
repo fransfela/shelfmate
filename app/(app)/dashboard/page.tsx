@@ -4,7 +4,7 @@ import type { UserBook, Book } from "@/lib/types"
 import Link from "next/link"
 import { BookOpen, Users, Plus } from "lucide-react"
 
-export const metadata = { title: "Dashboard — Folio" }
+export const metadata = { title: "Dashboard - Shelfmate" }
 
 export default async function DashboardPage() {
   const supabase = await createClient()

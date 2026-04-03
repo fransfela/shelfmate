@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server"
 import BookCard from "@/components/BookCard"
 import type { UserBook, Book } from "@/lib/types"
 
-export const metadata = { title: "My Shelf — Folio" }
+export const metadata = { title: "My Shelf - Shelfmate" }
 
 const TABS = [
   { key: "reading", label: "Reading" },

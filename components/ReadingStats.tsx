@@ -18,7 +18,7 @@ export default function ReadingStats({ stats }: Props) {
         <StatCard label="Total Books" value={stats.total_books} />
         <StatCard label={`${new Date().getFullYear()} Books`} value={stats.books_this_year} />
         <StatCard label="Finished" value={stats.books_finished} />
-        <StatCard label="Avg Rating" value={stats.average_rating ? `${stats.average_rating} ★` : "—"} />
+        <StatCard label="Avg Rating" value={stats.average_rating ? `${stats.average_rating} ★` : "-"} />
       </div>
 
       <div className="grid sm:grid-cols-2 gap-6">

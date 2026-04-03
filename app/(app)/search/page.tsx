@@ -1,6 +1,6 @@
 import BookSearch from "@/components/BookSearch"
 
-export const metadata = { title: "Search Books — Folio" }
+export const metadata = { title: "Search Books - Shelfmate" }
 
 export default function SearchPage() {
   return (

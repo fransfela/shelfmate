@@ -15,7 +15,7 @@ const features = [
   {
     icon: BarChart3,
     title: "Reading Stats",
-    desc: "Beautiful charts of your reading history — genres, pace, year in review. Your reading fingerprint.",
+    desc: "Beautiful charts of your reading history - genres, pace, year in review. Your reading fingerprint.",
   },
   {
     icon: Lock,
@@ -56,7 +56,7 @@ export default function LandingPage() {
           </h1>
           <p className="text-lg text-stone-500 dark:text-stone-400 max-w-xl mx-auto mb-10">
             A private library for you and the people who matter. Track books, share thoughts,
-            discover what to read next — together.
+            discover what to read next - together.
           </p>
           <div className="flex items-center justify-center gap-3">
             <Link
@@ -89,7 +89,7 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="border-t border-stone-200 dark:border-stone-800 px-6 py-6 flex items-center justify-between text-xs text-stone-400 dark:text-stone-500">
-        <span>shelfmate — built with Next.js &amp; Supabase</span>
+        <span>shelfmate - built with Next.js &amp; Supabase</span>
         <span>Open source · MIT License</span>
       </footer>
     </div>
