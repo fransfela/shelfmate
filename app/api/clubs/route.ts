@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 
-// GET /api/clubs — list clubs the current user belongs to
+// GET /api/clubs - list clubs the current user belongs to
 export async function GET() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -31,7 +31,7 @@ export async function GET() {
   return NextResponse.json(clubs)
 }
 
-// POST /api/clubs — create a new club (creator becomes owner)
+// POST /api/clubs - create a new club (creator becomes owner)
 export async function POST(request: Request) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

@@ -2,15 +2,15 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { BookOpen, Search, BarChart3, User, LogOut, Menu, X, Mail, Users2 } from "lucide-react"
+import { LayoutDashboard, BookMarked, Search, BarChart3, LogOut, Menu, X, Mail, Users2 } from "lucide-react"
 import { useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import ThemeToggle from "@/components/ThemeToggle"
 
 const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: BookOpen },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/clubs", label: "Clubs", icon: Users2 },
-  { href: "/shelf", label: "Shelf", icon: BookOpen },
+  { href: "/shelf", label: "Shelf", icon: BookMarked },
   { href: "/search", label: "Search", icon: Search },
   { href: "/stats", label: "Stats", icon: BarChart3 },
   { href: "/invites", label: "Invites", icon: Mail },

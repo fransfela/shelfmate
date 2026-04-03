@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
+import { LinkIcon, AlertCircle } from "lucide-react"
 import JoinClient from "./JoinClient"
 
 export default async function JoinPage({ params }: { params: Promise<{ code: string }> }) {
@@ -17,7 +18,7 @@ export default async function JoinPage({ params }: { params: Promise<{ code: str
     return (
       <div className="min-h-screen flex items-center justify-center px-4 bg-stone-50 dark:bg-stone-950">
         <div className="text-center">
-          <p className="text-2xl mb-2">🔍</p>
+          <LinkIcon size={28} className="mx-auto mb-3 text-stone-300 dark:text-stone-600" />
           <p className="text-stone-600 dark:text-stone-400">This invite link is invalid or has expired.</p>
         </div>
       </div>
@@ -49,7 +50,7 @@ export default async function JoinPage({ params }: { params: Promise<{ code: str
     return (
       <div className="min-h-screen flex items-center justify-center px-4 bg-stone-50 dark:bg-stone-950">
         <div className="text-center">
-          <p className="text-2xl mb-2">😕</p>
+          <AlertCircle size={28} className="mx-auto mb-3 text-stone-300 dark:text-stone-600" />
           <p className="text-stone-600 dark:text-stone-400">This invite code has already been used.</p>
         </div>
       </div>

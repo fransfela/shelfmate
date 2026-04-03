@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 
-const EMOJIS = ["📚", "📖", "🏛️", "🌿", "🌙", "☕", "🌊", "🔥", "🎭", "🧪", "🌍", "🎨"]
+const EMOJIS = ["📚", "📖", "🏛️", "🌿", "🌙", "☕", "🌊", "🪐", "🎭", "🧪", "🌍", "🎨"]
 
 export default function NewClubClient() {
   const router = useRouter()
@@ -46,7 +46,7 @@ export default function NewClubClient() {
 
       <h1 className="text-xl font-semibold text-stone-900 dark:text-stone-100 mb-1">Create a club</h1>
       <p className="text-sm text-stone-500 dark:text-stone-400 mb-6">
-        Invite your team, family, or friends — each club is completely separate.
+        Invite your team, family, or friends. Each club is completely separate.
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-5 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl p-6">

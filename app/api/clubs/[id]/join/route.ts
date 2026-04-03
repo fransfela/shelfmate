@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 
-// POST /api/clubs/[id]/join — join a club via invite code
+// POST /api/clubs/[id]/join - join a club via invite code
 // Body: { code: string }
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params

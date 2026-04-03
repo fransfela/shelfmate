@@ -141,7 +141,7 @@ export default function ClubClient({ clubId }: { clubId: string }) {
         </h2>
         {activity.length === 0 ? (
           <p className="text-sm text-stone-400 dark:text-stone-500 py-4 text-center">
-            No reading activity yet — start adding books to your shelf!
+            No reading activity yet. Start adding books to your shelf.
           </p>
         ) : (
           <div className="space-y-2">

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { Plus, Users, ArrowRight, BookOpen } from "lucide-react"
+import { Plus, ArrowRight, BookMarked } from "lucide-react"
 
 type Club = {
   id: string
@@ -42,7 +42,7 @@ export default function ClubsClient() {
         <div>
           <h1 className="text-xl font-semibold text-stone-900 dark:text-stone-100">My Clubs</h1>
           <p className="text-sm text-stone-500 dark:text-stone-400 mt-0.5">
-            Each club is its own space — members only see their own club.
+            Each club is its own space. Members only see their own club.
           </p>
         </div>
         <Link
@@ -56,7 +56,7 @@ export default function ClubsClient() {
 
       {clubs.length === 0 ? (
         <div className="border-2 border-dashed border-stone-200 dark:border-stone-700 rounded-2xl p-12 text-center">
-          <div className="text-4xl mb-3">📚</div>
+          <BookMarked size={28} className="mx-auto mb-3 text-stone-300 dark:text-stone-600" />
           <p className="text-stone-500 dark:text-stone-400 text-sm">
             You&apos;re not in any clubs yet.
           </p>

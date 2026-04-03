@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 
-// GET /api/clubs/[id]/invites — list all invites for this club
+// GET /api/clubs/[id]/invites - list all invites for this club
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const supabase = await createClient()
@@ -21,7 +21,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   return NextResponse.json(data ?? [])
 }
 
-// POST /api/clubs/[id]/invites — create a new invite for this club
+// POST /api/clubs/[id]/invites - create a new invite for this club
 export async function POST(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const supabase = await createClient()

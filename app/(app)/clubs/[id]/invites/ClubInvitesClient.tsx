@@ -81,7 +81,7 @@ export default function ClubInvitesClient({ clubId }: { clubId: string }) {
         <div>
           <h1 className="text-xl font-semibold text-stone-900 dark:text-stone-100">Club Invites</h1>
           <p className="text-sm text-stone-500 dark:text-stone-400 mt-0.5">
-            Share a link — each code can only be used once.
+            Share a link. Each code can only be used once.
           </p>
         </div>
         <button
