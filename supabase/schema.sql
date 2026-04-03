@@ -124,19 +124,6 @@ create policy "Users see own books always"
   on public.user_books for select
   using (auth.uid() = user_id);
 
-drop policy if exists "Friends see friend books" on public.user_books;
-create policy "Friends see friend books"
-  on public.user_books for select
-  using (
-    visibility = 'public'
-    or (visibility = 'friends' and exists (
-      select 1 from public.friendships
-      where status = 'accepted'
-        and ((user_id = auth.uid() and friend_id = user_books.user_id)
-          or (friend_id = auth.uid() and user_id = user_books.user_id))
-    ))
-  );
-
 drop policy if exists "Users insert own books" on public.user_books;
 create policy "Users insert own books" on public.user_books for insert with check (auth.uid() = user_id);
 
@@ -309,6 +296,20 @@ create policy "Friendships update by friend" on public.friendships for update us
 drop policy if exists "Friendships delete by participants" on public.friendships;
 create policy "Friendships delete by participants" on public.friendships for delete
   using (auth.uid() = user_id or auth.uid() = friend_id);
+
+-- Now safe to create: references friendships which exists above
+drop policy if exists "Friends see friend books" on public.user_books;
+create policy "Friends see friend books"
+  on public.user_books for select
+  using (
+    visibility = 'public'
+    or (visibility = 'friends' and exists (
+      select 1 from public.friendships
+      where status = 'accepted'
+        and ((user_id = auth.uid() and friend_id = user_books.user_id)
+          or (friend_id = auth.uid() and user_id = user_books.user_id))
+    ))
+  );
 
 
 -- =============================================================================
