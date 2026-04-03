@@ -7,6 +7,7 @@ type InviteCode = {
   id: string
   code: string
   created_at: string
+  expires_at: string | null
   used_at: string | null
   used_by: string | null
   used_by_profile: { username: string } | null
@@ -31,7 +32,8 @@ function CopyButton({ text, title = "Copy" }: { text: string; title?: string }) 
 }
 
 function buildMessage(code: string, signupBase: string) {
-  return `Hey! I'd like to invite you to Shelfmate, our private book club app where we track and share what we're reading.\n\nSign up at: ${signupBase}\nYour sign-up code is: ${code}\n\nSee you on the shelf!`
+  const signupUrl = `${signupBase}?code=${code}`
+  return `Hey! I'd like to invite you to Shelfmate, our private book club app where we track and share what we're reading.\n\nSign up here: ${signupUrl}\n\nSee you on the shelf!`
 }
 
 function ShareButtons({ code, signupBase }: { code: string; signupBase: string }) {
@@ -148,22 +150,41 @@ export default function InvitesClient() {
                 <Clock size={12} /> Available ({unused.length})
               </h2>
               <div className="space-y-3">
-                {unused.map((c) => (
+                {unused.map((c) => {
+                    const expired = c.expires_at && new Date(c.expires_at) < new Date()
+                    const daysLeft = c.expires_at
+                      ? Math.max(0, Math.ceil((new Date(c.expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
+                      : null
+                    return (
                     <div
                       key={c.id}
-                      className="flex flex-col gap-2 px-4 py-3 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800"
+                      className={`flex flex-col gap-2 px-4 py-3 rounded-xl border ${expired ? "bg-stone-50 dark:bg-stone-900/50 border-stone-100 dark:border-stone-800/50 opacity-60" : "bg-white dark:bg-stone-900 border-stone-200 dark:border-stone-800"}`}
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <span className="font-mono text-base font-semibold tracking-widest text-stone-800 dark:text-stone-100">
+                          <span className={`font-mono text-base font-semibold tracking-widest ${expired ? "text-stone-400 dark:text-stone-500 line-through" : "text-stone-800 dark:text-stone-100"}`}>
                             {c.code}
                           </span>
-                          <CopyButton text={c.code} title="Copy code" />
+                          {!expired && <CopyButton text={c.code} title="Copy code" />}
                         </div>
-                        <span className="text-xs text-stone-400 dark:text-stone-500">
-                          {new Date(c.created_at).toLocaleDateString()}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          {expired ? (
+                            <span className="text-xs text-red-400">Expired</span>
+                          ) : daysLeft !== null ? (
+                            <span className="text-xs text-stone-400 dark:text-stone-500">{daysLeft}d left</span>
+                          ) : null}
+                          <button
+                            onClick={() => deleteCode(c.id)}
+                            disabled={deleting === c.id}
+                            className="p-1.5 rounded text-stone-300 hover:text-red-500 dark:text-stone-600 dark:hover:text-red-400 transition-colors"
+                            title="Delete code"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
                       </div>
+                      {!expired && (
+                        <>
                       <div className="rounded-lg bg-stone-50 dark:bg-stone-800 px-3 py-2 text-xs text-stone-600 dark:text-stone-300 whitespace-pre-wrap leading-relaxed border border-stone-100 dark:border-stone-700">
                         {buildMessage(c.code, signupBase)}
                       </div>
@@ -171,8 +192,11 @@ export default function InvitesClient() {
                         <span className="text-xs text-stone-400 dark:text-stone-500">Share:</span>
                         <ShareButtons code={c.code} signupBase={signupBase} />
                       </div>
+                        </>
+                      )}
                     </div>
-                ))}
+                    )
+                })}
               </div>
             </section>
           )}

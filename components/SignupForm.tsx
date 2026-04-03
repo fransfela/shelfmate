@@ -2,13 +2,15 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { BookOpen } from "lucide-react"
 
 export default function SignupForm() {
   const router = useRouter()
-  const [form, setForm] = useState({ email: "", password: "", username: "", inviteCode: "" })
+  const searchParams = useSearchParams()
+  const codeFromUrl = searchParams.get("code") ?? ""
+  const [form, setForm] = useState({ email: "", password: "", username: "", inviteCode: codeFromUrl })
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
